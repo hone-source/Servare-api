@@ -1,16 +1,18 @@
-FROM gradle:8.11-jdk21 AS build
+FROM denoland/deno
+
 WORKDIR /app
 
-COPY settings.gradle.kts build.gradle.kts ./
-RUN gradle dependencies --no-daemon > /dev/null
+# Dependencias
+COPY deno.json deno.lock ./
+RUN deno install --frozen
 
-COPY src ./src
-RUN gradle installDist --no-daemon
+# El usuario de ejecución es dueño de src para que Compose Watch pueda sincronizar archivos
+COPY --chown=user src ./src
+RUN deno cache --frozen src/main.ts
 
-FROM eclipse-temurin:21-jre
-WORKDIR /app
+USER user
 
-COPY --from=build /app/build/install/ ./
+ENV PORT=8000
 EXPOSE 8000
 
-CMD ["servare-api/bin/servare-api"]
+CMD ["deno", "run", "--allow-net", "--allow-env", "--cached-only", "src/main.ts"]
