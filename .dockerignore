@@ -1,5 +1,11 @@
 .env
+.env.*
 .git
-.gradle
+.gitignore
 .idea
-build
+.vscode
+node_modules
+Dockerfile
+.dockerignore
+compose.yaml
+README.md
