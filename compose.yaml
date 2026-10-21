@@ -8,9 +8,11 @@ services:
         required: false
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-servare}:${POSTGRES_PASSWORD:-servare}@db:5432/${POSTGRES_DB:-servare}
-    depends_on:
-      db:
-        condition: service_healthy
+      # Certificados de desarrollo generados con mkcert en ./certs
+      TLS_CERT: /certs/dev.pem
+      TLS_KEY: /certs/dev-key.pem
+    volumes:
+      - ./certs:/certs:ro
     restart: unless-stopped
     develop:
       watch:
@@ -32,6 +34,8 @@ services:
       - "127.0.0.1:5432:5432"
     volumes:
       - db-data:/var/lib/postgresql
+      # Esquema inicial: Postgres solo ejecuta estos scripts cuando el volumen está vacío
+      - ./db/init:/docker-entrypoint-initdb.d:ro
     restart: unless-stopped
 
 volumes:
