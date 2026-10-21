@@ -3,8 +3,8 @@ import { cors } from "@hono/hono/cors";
 import { HTTPException } from "@hono/hono/http-exception";
 import { logger } from "@hono/hono/logger";
 import { secureHeaders } from "@hono/hono/secure-headers";
-import { health } from "./routes/health.ts";
-import { items } from "./routes/items.ts";
+import { fichas } from "./routes/fichas.ts";
+import { healthceck } from "./routes/healthceck.ts";
 
 export const app = new Hono();
 
@@ -12,8 +12,8 @@ app.use(logger());
 app.use(secureHeaders());
 app.use("/api/*", cors());
 
-app.route("/health", health);
-app.route("/api/v1/items", items);
+app.route("/api/v1/health", healthceck); // /health para la infraestructura
+app.route("/api/v1/fichas", fichas);
 
 app.notFound((c) => c.json({ error: "Not Found" }, 404));
 
