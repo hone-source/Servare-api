@@ -13,6 +13,9 @@ coverage/
 !.env.example
 !.env.tmp
 
+# Certificados TLS de desarrollo (mkcert)
+certs/
+
 # Sistema operativo
 .DS_Store
 Thumbs.db
