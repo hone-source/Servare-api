@@ -2,8 +2,9 @@ import { Hono } from "@hono/hono";
 
 export const healthceck = new Hono();
 
-// Sin caché: el cliente debe comprobar que alcanza el servidor, no una respuesta guardada.
+// Sin cache
+// El cliente debe comprobar que se puedo alcanzar el servidor
 healthceck.get("/", (c) => {
   c.header("Cache-Control", "no-store");
-  return c.json({ status: "ok", time: new Date().toISOString() });
+  return c.json({ status: "ok", time: new Date().toISOString() }, 200);
 });
