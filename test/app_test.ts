@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { app } from "src/app.ts";
+import { app } from "../src/app.ts";
 
 for (const path of ["/health", "/api/v1/health"]) {
   Deno.test(`GET ${path} responde ok sin caché`, async () => {
@@ -80,7 +80,7 @@ Deno.test({
   name: "CRUD de fichas en la base de datos",
   ignore: !Deno.env.get("DATABASE_URL"),
   async fn() {
-    const { sql } = await import("./db.ts");
+    const { sql } = await import("../src/config/db.ts");
     const id = crypto.randomUUID();
     try {
       const ficha = {
