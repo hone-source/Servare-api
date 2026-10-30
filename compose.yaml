@@ -1,0 +1,45 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      MONGODB_URI: mongodb://${MONGO_USER:-servare}:${MONGO_PASSWORD:-servare}@db:27017/${MONGO_DB:-servare}?authSource=admin
+
+      # Valor de desarrollo
+      JWT_SECRET: ${JWT_SECRET:-solo-para-desarrollo}
+
+      # Certificados de desarrollo generados con mkcert en ./certs
+      TLS_CERT: /certs/dev.pem
+      TLS_KEY: /certs/dev-key.pem
+    volumes:
+      - ./certs:/certs:ro
+    restart: unless-stopped
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./src
+          target: /app/src
+        - action: rebuild
+          path: deno.json
+        - action: rebuild
+          path: deno.lock
+
+  db:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-servare}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-servare}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-servare}
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - db-data:/data/db
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+
+volumes:
+  db-data:
