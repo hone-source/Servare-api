@@ -58,7 +58,7 @@ existe (ver `.env.example`).
 
 ### Base de datos
 
-MongoDB no necesita esquema: las colecciones `fichas` y `pruebas` se crean al insertar. Cada ficha es
+MongoDB no necesita esquema: la colección `fichas` se crea al insertar. Cada ficha es
 un solo documento con sus listas embebidas, y su `_id` es el `entityId` (UUID) de la app. El script
 `db/init/indexes.js` crea los índices, y Mongo lo ejecuta solo al crear el volumen `db-data` por
 primera vez. Si el volumen ya existe, se aplica a mano:
@@ -92,23 +92,19 @@ chmod 644 certs/dev-key.pem  # mkcert la crea con 600; el usuario `deno` del con
 | GET    | `/api/healthcheck`  | Estado del servicio |
 | POST   | `/api/auth/registro` | Crea una cuenta (`correo`, `contrasena`) y devuelve el token de sesión. Exige `Idempotency-Key`: 201 nueva, 200 reintento del mismo registro, 409 correo ya registrado, 422 datos no válidos |
 | POST   | `/api/auth/login`   | Inicia sesión (`correo`, `contrasena`) y devuelve un token nuevo: 200, 401 correo o contraseña incorrectos (no dice cuál), 422 datos no válidos |
-| GET    | `/api/pruebas`      | Lista los registros de prueba, con su `version`. Exige `Authorization: Bearer <token>`: 401 si falta, es inválido o expiró (la app lo toma como sesión expirada y pausa su cola) |
-| POST   | `/api/pruebas/:id`  | Crea el registro (versión 1): 201, 409 si ya existe (con el registro vigente). Exige `Idempotency-Key` |
-| PUT    | `/api/pruebas/:id`  | Actualiza. Exige `baseVersion` en el cuerpo y `Idempotency-Key`: 200 con la versión nueva, 409 si la versión del servidor es otra (con el registro vigente), 404 si ya no existe, 422 si falta `baseVersion` |
-| DELETE | `/api/pruebas/:id`  | Elimina. `?baseVersion=` es opcional; con ella se comprueba la versión (409 si es otra). Exige `Idempotency-Key`: 204, 404 si no existe |
-| GET    | `/api/fichas`     | Lista fichas (resumen, la más reciente primero) |
-| GET    | `/api/fichas/:id` | Obtiene una ficha completa                      |
-| PUT    | `/api/fichas/:id` | Crea (201) o reemplaza (200) una ficha          |
-| DELETE | `/api/fichas/:id` | Elimina una ficha                               |
+| GET    | `/api/fichas`      | Lista las fichas, con su `version`. Exige `Authorization: Bearer <token>`: 401 si falta, es inválido o expiró (la app lo toma como sesión expirada y pausa su cola) |
+| POST   | `/api/fichas/:id`  | Crea la ficha (versión 1): 201, 409 si ya existe (con la ficha vigente). Exige `Idempotency-Key` |
+| PUT    | `/api/fichas/:id`  | Actualiza. Exige `baseVersion` en el cuerpo y `Idempotency-Key`: 200 con la versión nueva, 409 si la versión del servidor es otra (con la ficha vigente), 404 si ya no existe, 422 si falta `baseVersion` |
+| DELETE | `/api/fichas/:id`  | Elimina. `?baseVersion=` es opcional; con ella se comprueba la versión (409 si es otra). Exige `Idempotency-Key`: 204, 404 si no existe |
 
-### Versiones y reintentos de `pruebas`
+### Versiones y reintentos de `fichas`
 
-Cada registro tiene `version`, que empieza en 1 y sube con cada cambio. La app envía la que conocía
-(`baseVersion`); si el servidor tiene otra, rechaza con **409** y devuelve el registro vigente:
+Cada ficha tiene `version`, que empieza en 1 y sube con cada cambio. La app envía la que conocía
+(`baseVersion`); si el servidor tiene otra, rechaza con **409** y devuelve la ficha vigente:
 
 ```json
 { "error": "El registro cambió en el servidor",
-  "actual": { "entityId": "…", "titulo": "…", "texto": "…", "numero": 1, "createdAt": 1, "version": 4 } }
+  "actual": { "entityId": "…", "datos": { … }, "createdAt": 1, "version": 4 } }
 ```
 
 El `Idempotency-Key` es el `operationId` de la app y es el mismo en todos los reintentos. Cuando una
