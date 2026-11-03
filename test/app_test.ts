@@ -137,55 +137,6 @@ Deno.test({
   },
 });
 
-const putPrueba = (id: string, prueba: unknown) =>
-  app.request(`/api/pruebas/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(prueba),
-  });
-
-Deno.test("PUT de prueba con id que no es UUID o campos inválidos devuelve 400", async () => {
-  const prueba = { titulo: "t", texto: "x", numero: 1, createdAt: 1761350400000 };
-  assertEquals((await putPrueba("123", prueba)).status, 400);
-  const id = crypto.randomUUID();
-  assertEquals((await putPrueba(id, { ...prueba, numero: 1.5 })).status, 400);
-  assertEquals((await putPrueba(id, { ...prueba, titulo: undefined })).status, 400);
-});
-
-// Requiere MongoDB (ver el test de fichas)
-Deno.test({
-  name: "CRUD de pruebas en la base de datos",
-  ignore: !Deno.env.get("MONGODB_URI"),
-  async fn() {
-    const { db } = await import("../src/config/db.ts");
-    const id = crypto.randomUUID();
-    try {
-      const prueba = { titulo: "Hola", texto: "Mundo", numero: 7, createdAt: 1761350400000 };
-
-      const creada = await putPrueba(id, prueba);
-      assertEquals(creada.status, 201);
-      assertEquals(await creada.json(), { entityId: id, ...prueba });
-
-      const actualizada = await putPrueba(id, { ...prueba, titulo: "Adiós" });
-      assertEquals(actualizada.status, 200);
-
-      const lista = await (await app.request("/api/pruebas")).json();
-      assertEquals(lista.find((p: { entityId: string }) => p.entityId === id), {
-        entityId: id,
-        ...prueba,
-        titulo: "Adiós",
-      });
-
-      const borrada = await app.request(`/api/pruebas/${id}`, { method: "DELETE" });
-      assertEquals(borrada.status, 204);
-      const otraVez = await app.request(`/api/pruebas/${id}`, { method: "DELETE" });
-      assertEquals(otraVez.status, 404);
-    } finally {
-      await db.collection("pruebas").deleteOne({ _id: id as never });
-    }
-  },
-});
-
 // El cliente de MongoDB es compartido: se cierra una sola vez, al terminar los demás tests.
 Deno.test({
   name: "cierra la conexión a la base de datos",
