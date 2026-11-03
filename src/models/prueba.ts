@@ -16,6 +16,3 @@ export const PruebaEnvio = Prueba.extend({
 });
 
 export type PruebaEnvio = z.infer<typeof PruebaEnvio>;
-
-// Identifica la operación de la app: se repite igual en todos los reintentos
-export const ClaveOperacion = z.string().min(1).max(100);
