@@ -3,6 +3,7 @@ import { HTTPException } from "@hono/hono/http-exception";
 import { z } from "zod";
 import { FichaEnvio } from "../models/ficha.ts";
 import { actualizarFicha, borrarFicha, crearFicha, listarFichas } from "../services/fichas.ts";
+import { recordarResultado } from "../services/operaciones.ts";
 import type { FichaVista } from "../services/fichas.ts";
 import { inexistente, leerBaseVersion, leerClave, leerId, repetida } from "../utils/peticion.ts";
 

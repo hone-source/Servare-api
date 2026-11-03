@@ -7,6 +7,7 @@ import { autenticacion } from "./middlewares/autenticacion.ts";
 import { auth } from "./routes/auth.ts";
 import { fichas } from "./routes/fichas.ts";
 import { healthcheck } from "./routes/healthcheck.ts";
+import { pruebas } from "./routes/pruebas.ts";
 import { test } from "./routes/test.ts";
 
 export const app = new Hono();
@@ -22,6 +23,8 @@ app.route("/api/auth", auth);
 // Con sesión: los datos exigen el token
 app.use("/api/fichas/*", autenticacion);
 app.route("/api/fichas", fichas);
+app.use("/api/pruebas/*", autenticacion);
+app.route("/api/pruebas", pruebas);
 
 app.route("/api/test", test); // ruta /test para hacer test
 
