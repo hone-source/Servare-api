@@ -30,3 +30,6 @@ build/
 # Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Documentos
+docs/
