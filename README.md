@@ -30,6 +30,7 @@ src/
 │   ├── auth.ts          # /api/auth: registro y login
 │   ├── fichas.ts        # /api/fichas
 │   ├── pruebas.ts       # /api/pruebas
+│   ├── puntos.ts        # /api/puntos
 │   ├── healthcheck.ts   # /api/healthcheck
 │   └── test.ts          # /api/test (depuracion, asi que ignora este)
 ├── controllers/         # Leen la petición, validan y arman la respuesta HTTP
@@ -37,6 +38,7 @@ src/
 │   ├── usuarios.ts
 │   ├── fichas.ts
 │   ├── pruebas.ts
+│   ├── puntos.ts
 │   └── operaciones.ts   # Resultados guardados para la idempotencia
 ├── models/              # Esquemas Zod: usuario, ficha, prueba, operación
 ├── middlewares/
@@ -168,6 +170,10 @@ Todas las rutas cuelgan de `/api` y responden JSON. Los errores tienen la forma
 | POST   | `/api/pruebas/:id`   | Sí     | Crea un registro de prueba                                 |
 | PUT    | `/api/pruebas/:id`   | Sí     | Actualiza un registro de prueba                            |
 | DELETE | `/api/pruebas/:id`   | Sí     | Elimina un registro de prueba                              |
+| GET    | `/api/puntos`        | Sí     | Lista los puntos del mapa                                  |
+| POST   | `/api/puntos/:id`    | Sí     | Crea un punto                                              |
+| PUT    | `/api/puntos/:id`    | Sí     | Actualiza un punto                                         |
+| DELETE | `/api/puntos/:id`    | Sí     | Elimina un punto                                           |
 | POST   | `/api/test`          | No     | Depuración: imprime la petición en la consola del servidor |
 
 Cualquier otra ruta responde `404 { "error": "Not Found" }`.
@@ -255,9 +261,19 @@ cuerpo:
 { "titulo": "…", "texto": "…", "numero": 1, "createdAt": 1790000000000, "baseVersion": null }
 ```
 
+### Puntos
+
+`/api/puntos` guarda los puntos que el usuario marca en el mapa. Tiene el mismo contrato que las
+pruebas, con este cuerpo (`latitud` de −90 a 90, `longitud` de −180 a 180, `nombre` no vacío; un
+cuerpo que no cumpla responde **422**):
+
+```json
+{ "nombre": "…", "latitud": 22.77, "longitud": -102.57, "createdAt": 1790000000000, "baseVersion": null }
+```
+
 ### Versiones y reintentos
 
-Cada ficha y cada prueba tiene `version`, que empieza en 1 y sube con cada cambio. La app envía la
+Cada ficha, prueba y punto tiene `version`, que empieza en 1 y sube con cada cambio. La app envía la
 que conocía (`baseVersion`), si el servidor tiene otra, rechaza con **409** y devuelve el registro
 vigente:
 
