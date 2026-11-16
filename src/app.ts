@@ -8,6 +8,7 @@ import { auth } from "./routes/auth.ts";
 import { fichas } from "./routes/fichas.ts";
 import { healthcheck } from "./routes/healthcheck.ts";
 import { pruebas } from "./routes/pruebas.ts";
+import { puntos } from "./routes/puntos.ts";
 import { test } from "./routes/test.ts";
 
 export const app = new Hono();
@@ -25,8 +26,10 @@ app.use("/api/fichas/*", autenticacion);
 app.route("/api/fichas", fichas);
 app.use("/api/pruebas/*", autenticacion);
 app.route("/api/pruebas", pruebas);
+app.use("/api/puntos/*", autenticacion);
+app.route("/api/puntos", puntos);
 
-app.route("/api/test", test); // ruta /test para hacer test
+app.route("/api/test", test); // Ruta para mostrar en consola la información que se recibe
 
 app.notFound((c) => c.json({ error: "Not Found" }, 404));
 
